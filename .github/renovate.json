@@ -1,0 +1,209 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "security:openssf-scorecard",
+    ":enableVulnerabilityAlertsWithLabel(security)"
+  ],
+  "schedule": ["before 4am on monday"],
+  "timezone": "UTC",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "🤖 CUERVO Dependency Updates Dashboard",
+  "dependencyDashboardHeader": "This dashboard provides an overview of all dependency updates for the CUERVO platform. Updates are automatically grouped and scheduled based on type and criticality.",
+  "rangeStrategy": "bump",
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+  "commitMessageAction": "Update",
+  "commitMessageTopic": "{{depName}}",
+  "commitMessageExtra": "to {{newVersion}}",
+  "labels": ["dependencies", "automated", "cuervo-platform"],
+  "reviewersFromCodeOwners": true,
+  "assigneesFromCodeOwners": true,
+  "prCreation": "not-pending",
+  "prConcurrentLimit": 8,
+  "prHourlyLimit": 3,
+  "rebaseWhen": "conflicted",
+  "platformAutomerge": true,
+  "ignorePresets": [":prHourlyLimit2"],
+  "packageRules": [
+    {
+      "description": "Auto-merge patch updates for production dependencies",
+      "matchUpdateTypes": ["patch"],
+      "matchDepTypes": ["dependencies"],
+      "automerge": true,
+      "automergeType": "branch",
+      "labels": ["patch-update", "auto-merge"],
+      "reviewers": []
+    },
+    {
+      "description": "Auto-merge all dev dependency updates",
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true,
+      "automergeType": "branch",
+      "labels": ["dev-dependencies", "auto-merge"],
+      "reviewers": []
+    },
+    {
+      "description": "Review minor updates for production dependencies",
+      "matchUpdateTypes": ["minor"],
+      "matchDepTypes": ["dependencies"],
+      "reviewers": ["team:maintainers"],
+      "schedule": ["before 4am on monday"],
+      "labels": ["minor-update", "needs-review"]
+    },
+    {
+      "description": "Careful review for major updates",
+      "matchUpdateTypes": ["major"],
+      "reviewers": ["team:maintainers", "team:security"],
+      "schedule": ["before 4am on first day of month"],
+      "labels": ["major-update", "breaking-change", "needs-thorough-review"],
+      "prBodyTemplate": "This PR contains **major version updates** that may include breaking changes.\n\n### ⚠️ Breaking Changes Review Required\n\n{{{changelogUrl}}}\n\n### Testing Checklist\n- [ ] All existing tests pass\n- [ ] New tests added if needed\n- [ ] Manual testing completed\n- [ ] Documentation updated\n- [ ] Security implications reviewed"
+    },
+    {
+      "description": "Group React ecosystem updates",
+      "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"],
+      "groupName": "React",
+      "reviewers": ["team:frontend"],
+      "labels": ["react", "frontend"]
+    },
+    {
+      "description": "Group NestJS ecosystem updates",
+      "matchPackagePatterns": ["^@nestjs/"],
+      "groupName": "NestJS",
+      "reviewers": ["team:backend"],
+      "labels": ["nestjs", "backend"]
+    },
+    {
+      "description": "Group TypeScript and type definitions",
+      "matchPackageNames": ["typescript"],
+      "matchPackagePatterns": ["^@types/"],
+      "groupName": "TypeScript",
+      "reviewers": ["team:maintainers"],
+      "labels": ["typescript", "types"]
+    },
+    {
+      "description": "Group testing frameworks and utilities",
+      "matchPackagePatterns": ["jest", "testing-library", "cypress", "playwright"],
+      "groupName": "Testing",
+      "automerge": true,
+      "automergeType": "branch",
+      "labels": ["testing", "auto-merge"]
+    },
+    {
+      "description": "Group linting and formatting tools",
+      "matchPackagePatterns": ["eslint", "prettier", "husky", "lint-staged"],
+      "groupName": "Code Quality Tools",
+      "automerge": true,
+      "automergeType": "branch",
+      "labels": ["code-quality", "auto-merge"]
+    },
+    {
+      "description": "Group build tools and bundlers",
+      "matchPackagePatterns": ["webpack", "vite", "rollup", "esbuild"],
+      "groupName": "Build Tools",
+      "reviewers": ["team:maintainers"],
+      "labels": ["build-tools"]
+    },
+    {
+      "description": "Group Docker and container-related updates",
+      "matchPackageNames": ["docker", "dockerfile"],
+      "matchFileNames": ["Dockerfile*", "docker-compose*.yml"],
+      "groupName": "Docker",
+      "reviewers": ["team:devops"],
+      "labels": ["docker", "infrastructure"]
+    },
+    {
+      "description": "Group Kubernetes and deployment manifests",
+      "matchFileNames": ["k8s/**", "kubernetes/**", "helm/**"],
+      "groupName": "Kubernetes",
+      "reviewers": ["team:devops", "team:sre"],
+      "labels": ["kubernetes", "deployment"]
+    },
+    {
+      "description": "Security updates - highest priority",
+      "matchPackagePatterns": ["*"],
+      "vulnerabilityAlerts": {
+        "enabled": true,
+        "reviewers": ["team:security", "team:maintainers"],
+        "labels": ["security", "vulnerability", "urgent"],
+        "schedule": ["at any time"],
+        "prPriority": 10
+      }
+    },
+    {
+      "description": "Rust dependencies for consensus layer",
+      "matchFileNames": ["**/Cargo.toml"],
+      "groupName": "Rust Dependencies",
+      "reviewers": ["team:consensus", "team:rust"],
+      "labels": ["rust", "consensus-layer"],
+      "schedule": ["before 4am on monday"]
+    },
+    {
+      "description": "AI/ML model dependencies",
+      "matchPackagePatterns": ["openai", "anthropic", "cohere", "@langchain", "langchain"],
+      "groupName": "AI/ML Models",
+      "reviewers": ["team:ai", "team:maintainers"],
+      "labels": ["ai-ml", "models"],
+      "schedule": ["before 4am on wednesday"]
+    },
+    {
+      "description": "Database and ORM updates",
+      "matchPackagePatterns": ["prisma", "typeorm", "mongoose", "postgres", "redis"],
+      "groupName": "Database",
+      "reviewers": ["team:backend", "team:database"],
+      "labels": ["database", "orm"]
+    }
+  ],
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "reviewers": ["team:security"],
+    "labels": ["security", "vulnerability"],
+    "schedule": ["at any time"]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on monday"],
+    "commitMessageAction": "Update",
+    "commitMessageTopic": "lock file maintenance"
+  },
+  "osvVulnerabilityAlerts": true,
+  "separateMultipleMajor": true,
+  "separateMinorPatch": false,
+  "pin": {
+    "enabled": false
+  },
+  "digest": {
+    "enabled": true,
+    "schedule": ["before 4am on sunday"]
+  },
+  "configMigration": true,
+  "regexManagers": [
+    {
+      "description": "Update Node.js version in Dockerfiles",
+      "fileMatch": ["(^|/)Dockerfile$"],
+      "matchStrings": ["FROM node:(?<currentValue>\\d+(?:\\.\\d+)?(?:\\.\\d+)?)-alpine"],
+      "datasourceTemplate": "node-version",
+      "depNameTemplate": "node"
+    },
+    {
+      "description": "Update versions in GitHub Actions workflows",
+      "fileMatch": ["^\\.github/workflows/.+\\.ya?ml$"],
+      "matchStrings": ["uses: (?<depName>[^@]+)@(?<currentValue>.+?)\\s"],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update Rust toolchain in rust-toolchain files",
+      "fileMatch": ["(^|/)rust-toolchain(\\.toml)?$"],
+      "matchStrings": ["channel\\s*=\\s*[\"']?(?<currentValue>[^\"'\\s]+)[\"']?"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "rust-lang/rust"
+    }
+  ],
+  "postUpdateOptions": [
+    "npmDedupe"
+  ]
+}

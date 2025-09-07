@@ -1,0 +1,162 @@
+# Global Ownership
+* @cuervo-ai/maintainers
+
+# GitHub Configuration and Workflows
+.github/ @cuervo-ai/devops @cuervo-ai/maintainers
+.github/workflows/ @cuervo-ai/devops @cuervo-ai/sre
+.github/dependabot.yml @cuervo-ai/devops
+.github/renovate.json @cuervo-ai/devops
+
+# Documentation
+README.md @cuervo-ai/maintainers @cuervo-ai/documentation
+SECURITY.md @cuervo-ai/security @cuervo-ai/maintainers
+profile/ @cuervo-ai/maintainers @cuervo-ai/documentation
+
+# Core Documentation Hub
+cuervo-docs/ @cuervo-ai/documentation @cuervo-ai/maintainers
+cuervo-docs/docs/architecture/ @cuervo-ai/architecture @cuervo-ai/maintainers
+cuervo-docs/docs/security/ @cuervo-ai/security
+cuervo-docs/deployment/ @cuervo-ai/devops @cuervo-ai/sre
+cuervo-docs/runbooks/ @cuervo-ai/sre @cuervo-ai/devops
+
+# Consensus Layer (Rust)
+cuervo-hydra-hicon/ @cuervo-ai/consensus @cuervo-ai/rust
+cuervo-hydra-hicon/src/consensus/ @cuervo-ai/consensus @cuervo-ai/cryptography
+cuervo-hydra-hicon/src/crypto/ @cuervo-ai/cryptography @cuervo-ai/security
+cuervo-hydra-hicon/Cargo.toml @cuervo-ai/rust @cuervo-ai/consensus
+
+# Desktop Client (Rust + Tauri)
+cuervo-menou/ @cuervo-ai/desktop @cuervo-ai/rust
+cuervo-menou/src-tauri/ @cuervo-ai/desktop @cuervo-ai/rust
+cuervo-menou/src/ @cuervo-ai/frontend @cuervo-ai/desktop
+cuervo-menou/Cargo.toml @cuervo-ai/rust @cuervo-ai/desktop
+
+# Frontend Applications
+cuervo-admin/ @cuervo-ai/frontend @cuervo-ai/ui-ux
+cuervo-admin/src/components/ @cuervo-ai/frontend @cuervo-ai/ui-ux
+cuervo-admin/src/pages/ @cuervo-ai/frontend @cuervo-ai/product
+cuervo-admin/package.json @cuervo-ai/frontend @cuervo-ai/maintainers
+
+# Backend Services - Core Platform
+cuervo-mcp-platform/ @cuervo-ai/backend @cuervo-ai/mcp
+cuervo-mcp-platform/src/auth/ @cuervo-ai/backend @cuervo-ai/security
+cuervo-mcp-platform/src/api/ @cuervo-ai/backend @cuervo-ai/api
+
+cuervo-mcp-server/ @cuervo-ai/mcp @cuervo-ai/backend
+cuervo-mcp-server/src/protocol/ @cuervo-ai/mcp @cuervo-ai/protocol
+cuervo-mcp-server/src/handlers/ @cuervo-ai/mcp @cuervo-ai/backend
+
+cuervo-mcp-integration/ @cuervo-ai/mcp @cuervo-ai/integrations
+cuervo-mcp-integration/src/connectors/ @cuervo-ai/integrations @cuervo-ai/external-apis
+
+# Backend Services - Microservices
+cuervo-agent-service/ @cuervo-ai/agents @cuervo-ai/backend
+cuervo-agent-service/src/orchestration/ @cuervo-ai/agents @cuervo-ai/ai
+cuervo-agent-service/src/models/ @cuervo-ai/ai @cuervo-ai/agents
+
+cuervo-execution-service/ @cuervo-ai/execution @cuervo-ai/backend
+cuervo-execution-service/src/runners/ @cuervo-ai/execution @cuervo-ai/backend
+cuervo-execution-service/src/workflows/ @cuervo-ai/execution @cuervo-ai/orchestration
+
+cuervo-auth-service/ @cuervo-ai/security @cuervo-ai/backend
+cuervo-auth-service/src/jwt/ @cuervo-ai/security @cuervo-ai/cryptography
+cuervo-auth-service/src/rbac/ @cuervo-ai/security @cuervo-ai/backend
+
+cuervo-metrics-service/ @cuervo-ai/observability @cuervo-ai/backend
+cuervo-metrics-service/src/collectors/ @cuervo-ai/observability @cuervo-ai/monitoring
+cuervo-metrics-service/src/exporters/ @cuervo-ai/observability @cuervo-ai/backend
+
+cuervo-notification-service/ @cuervo-ai/backend @cuervo-ai/integrations
+cuervo-notification-service/src/channels/ @cuervo-ai/integrations @cuervo-ai/external-apis
+
+# Shared Libraries
+cuervo-shared-kernel/ @cuervo-ai/architecture @cuervo-ai/maintainers
+cuervo-shared-kernel/src/domain/ @cuervo-ai/architecture @cuervo-ai/ddd
+cuervo-shared-kernel/src/infrastructure/ @cuervo-ai/architecture @cuervo-ai/backend
+
+cuervo-shared-types/ @cuervo-ai/maintainers @cuervo-ai/typescript
+cuervo-shared-types/src/api/ @cuervo-ai/api @cuervo-ai/backend
+cuervo-shared-types/src/domain/ @cuervo-ai/architecture @cuervo-ai/maintainers
+
+# Plugin Ecosystem
+cuervo-plugins/ @cuervo-ai/plugins @cuervo-ai/extensions
+cuervo-plugins/vucem-integration/ @cuervo-ai/plugins @cuervo-ai/external-apis @cuervo-ai/compliance
+cuervo-plugins/finance-integration/ @cuervo-ai/plugins @cuervo-ai/fintech
+cuervo-plugins/healthcare-integration/ @cuervo-ai/plugins @cuervo-ai/healthcare
+cuervo-plugins/manufacturing-integration/ @cuervo-ai/plugins @cuervo-ai/manufacturing
+
+# Infrastructure as Code
+cuervo-infrastructure/ @cuervo-ai/devops @cuervo-ai/sre
+cuervo-infrastructure/terraform/ @cuervo-ai/devops @cuervo-ai/cloud-engineering
+cuervo-infrastructure/kubernetes/ @cuervo-ai/sre @cuervo-ai/k8s
+cuervo-infrastructure/docker/ @cuervo-ai/devops @cuervo-ai/containerization
+cuervo-infrastructure/helm/ @cuervo-ai/sre @cuervo-ai/k8s
+cuervo-infrastructure/monitoring/ @cuervo-ai/observability @cuervo-ai/sre
+
+# Gateway Services
+cuervo-gateway/ @cuervo-ai/api @cuervo-ai/backend
+cuervo-gateway/src/routing/ @cuervo-ai/api @cuervo-ai/networking
+cuervo-gateway/src/middleware/ @cuervo-ai/api @cuervo-ai/security
+
+# AI/ML Specific Files
+*.py @cuervo-ai/ai @cuervo-ai/data-science
+**/models/ @cuervo-ai/ai @cuervo-ai/ml-engineering
+**/training/ @cuervo-ai/ai @cuervo-ai/ml-engineering
+
+# Security Sensitive Files
+**/*secret* @cuervo-ai/security
+**/*key* @cuervo-ai/security
+**/*cert* @cuervo-ai/security
+**/*auth* @cuervo-ai/security
+**/security/ @cuervo-ai/security
+
+# Database and Migrations
+**/migrations/ @cuervo-ai/database @cuervo-ai/backend
+**/schema/ @cuervo-ai/database @cuervo-ai/backend
+**/*db* @cuervo-ai/database @cuervo-ai/backend
+**/prisma/ @cuervo-ai/database @cuervo-ai/backend
+
+# Performance Critical Files
+**/benchmarks/ @cuervo-ai/performance @cuervo-ai/sre
+**/profiling/ @cuervo-ai/performance @cuervo-ai/optimization
+
+# Test Files
+**/*.test.* @cuervo-ai/qa @cuervo-ai/testing
+**/*.spec.* @cuervo-ai/qa @cuervo-ai/testing
+**/tests/ @cuervo-ai/qa @cuervo-ai/testing
+**/__tests__/ @cuervo-ai/qa @cuervo-ai/testing
+**/cypress/ @cuervo-ai/qa @cuervo-ai/e2e-testing
+
+# Configuration Files
+package.json @cuervo-ai/maintainers
+package-lock.json @cuervo-ai/maintainers
+Cargo.toml @cuervo-ai/rust
+Cargo.lock @cuervo-ai/rust
+tsconfig.json @cuervo-ai/typescript @cuervo-ai/frontend
+jest.config.js @cuervo-ai/qa @cuervo-ai/testing
+docker-compose*.yml @cuervo-ai/devops
+Dockerfile* @cuervo-ai/devops
+.env.* @cuervo-ai/devops @cuervo-ai/security
+
+# Linting and Formatting
+.eslintrc.* @cuervo-ai/code-quality
+.prettierrc* @cuervo-ai/code-quality
+.editorconfig @cuervo-ai/maintainers
+
+# CI/CD Specific
+.gitignore @cuervo-ai/maintainers
+.dockerignore @cuervo-ai/devops
+
+# Special Directories - Picura (Legacy/Research)
+picura/ @cuervo-ai/research @cuervo-ai/legacy-systems
+picura/docs/ @cuervo-ai/documentation @cuervo-ai/research
+
+# Team-specific overrides for critical components
+# High-privilege operations require security team approval
+**/sudo @cuervo-ai/security @cuervo-ai/sre
+**/root @cuervo-ai/security @cuervo-ai/sre
+**/admin @cuervo-ai/security @cuervo-ai/maintainers
+
+# Emergency contact for critical system files
+**/production @cuervo-ai/sre @cuervo-ai/security @cuervo-ai/maintainers
+**/prod @cuervo-ai/sre @cuervo-ai/security @cuervo-ai/maintainers

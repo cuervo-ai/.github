@@ -1,0 +1,322 @@
+version: 2
+updates:
+  # Package ecosystem: npm
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "team:maintainers"
+    assignees:
+      - "team:maintainers"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-development: "chore(deps-dev)"
+      include: "scope"
+    versioning-strategy: "increase"
+    target-branch: "develop"
+    allow:
+      - dependency-type: "production"
+      - dependency-type: "development"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      react:
+        patterns:
+          - "react*"
+          - "@types/react*"
+      nestjs:
+        patterns:
+          - "@nestjs/*"
+      typescript:
+        patterns:
+          - "typescript"
+          - "@types/*"
+      testing:
+        patterns:
+          - "*jest*"
+          - "*testing-library*"
+          - "cypress"
+          - "playwright"
+      linting:
+        patterns:
+          - "eslint*"
+          - "prettier*"
+          - "husky"
+          - "lint-staged"
+
+  # Package ecosystem: Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "UTC"
+    reviewers:
+      - "team:devops"
+    assignees:
+      - "team:devops"
+    labels:
+      - "dependencies"
+      - "docker"
+      - "infrastructure"
+    commit-message:
+      prefix: "chore(docker)"
+
+  # Individual service Docker files
+  - package-ecosystem: "docker"
+    directory: "/cuervo-admin"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:frontend"
+    labels:
+      - "frontend"
+      - "docker"
+
+  - package-ecosystem: "docker"
+    directory: "/cuervo-mcp-platform"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+    labels:
+      - "backend"
+      - "docker"
+
+  # Package ecosystem: GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/.github/workflows"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "UTC"
+    reviewers:
+      - "team:devops"
+    assignees:
+      - "team:devops"
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+    commit-message:
+      prefix: "chore(ci)"
+
+  # Package ecosystem: Cargo (Rust)
+  - package-ecosystem: "cargo"
+    directory: "/cuervo-hydra-hicon"
+    schedule:
+      interval: "weekly"
+      day: "thursday"
+      time: "09:00"
+      timezone: "UTC"
+    reviewers:
+      - "team:consensus"
+      - "team:rust"
+    assignees:
+      - "team:rust"
+    labels:
+      - "dependencies"
+      - "rust"
+      - "consensus-layer"
+    commit-message:
+      prefix: "chore(rust-deps)"
+    versioning-strategy: "increase"
+    groups:
+      async-runtime:
+        patterns:
+          - "tokio*"
+          - "async*"
+      serialization:
+        patterns:
+          - "serde*"
+      crypto:
+        patterns:
+          - "ring"
+          - "ed25519*"
+          - "sha2"
+          - "blake3"
+
+  - package-ecosystem: "cargo"
+    directory: "/cuervo-menou"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:desktop"
+      - "team:rust"
+    labels:
+      - "desktop-client"
+      - "rust"
+
+  # Package ecosystem: Terraform
+  - package-ecosystem: "terraform"
+    directory: "/cuervo-infrastructure"
+    schedule:
+      interval: "monthly"
+      day: "first-monday"
+      time: "09:00"
+      timezone: "UTC"
+    reviewers:
+      - "team:devops"
+      - "team:sre"
+    assignees:
+      - "team:devops"
+    labels:
+      - "dependencies"
+      - "terraform"
+      - "infrastructure"
+    commit-message:
+      prefix: "chore(infra)"
+
+  # Subdirectory configurations for monorepo structure
+  - package-ecosystem: "npm"
+    directory: "/cuervo-admin"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:frontend"
+    labels:
+      - "frontend"
+      - "admin-dashboard"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-mcp-platform"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+    labels:
+      - "backend"
+      - "mcp-platform"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-agent-service"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+      - "team:agents"
+    labels:
+      - "backend"
+      - "agent-service"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-execution-service"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+      - "team:execution"
+    labels:
+      - "backend"
+      - "execution-service"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-auth-service"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+      - "team:security"
+    labels:
+      - "backend"
+      - "auth-service"
+      - "security"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-metrics-service"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+      - "team:observability"
+    labels:
+      - "backend"
+      - "metrics-service"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-notification-service"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:backend"
+    labels:
+      - "backend"
+      - "notification-service"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-shared-kernel"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:maintainers"
+      - "team:architecture"
+    labels:
+      - "shared-library"
+      - "ddd"
+      - "architecture"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-shared-types"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:maintainers"
+    labels:
+      - "shared-library"
+      - "typescript"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-plugins"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:plugins"
+      - "team:backend"
+    labels:
+      - "plugins"
+      - "extensions"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-mcp-server"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:mcp"
+      - "team:backend"
+    labels:
+      - "mcp-server"
+      - "protocol"
+
+  - package-ecosystem: "npm"
+    directory: "/cuervo-mcp-integration"
+    schedule:
+      interval: "weekly"
+    reviewers:
+      - "team:mcp"
+      - "team:integrations"
+    labels:
+      - "mcp-integration"
+      - "external-services"
+
+  # Documentation dependencies
+  - package-ecosystem: "npm"
+    directory: "/cuervo-docs"
+    schedule:
+      interval: "monthly"
+    reviewers:
+      - "team:documentation"
+    labels:
+      - "documentation"
+      - "website"

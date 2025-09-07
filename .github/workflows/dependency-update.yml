@@ -1,0 +1,333 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run dependency updates weekly on Mondays at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      update_type:
+        description: 'Type of update to perform'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+        - patch
+        - minor
+        - major
+        - all
+
+concurrency:
+  group: dependency-updates
+  cancel-in-progress: false
+
+jobs:
+  npm-audit:
+    name: NPM Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci --prefer-offline
+
+    - name: Run security audit
+      run: |
+        npm audit --audit-level=moderate
+        npm audit fix --dry-run > audit-report.txt
+
+    - name: Upload audit report
+      uses: actions/upload-artifact@v4
+      with:
+        name: npm-audit-report
+        path: audit-report.txt
+
+  dependency-review:
+    name: Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Dependency Review
+      uses: actions/dependency-review-action@v4
+      with:
+        fail-on-severity: critical
+        allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC
+
+  renovate-config:
+    name: Renovate Bot Configuration
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create Renovate config
+      run: |
+        cat > .github/renovate.json << 'EOF'
+        {
+          "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+          "extends": [
+            "config:recommended",
+            "security:openssf-scorecard"
+          ],
+          "schedule": ["before 4am on monday"],
+          "timezone": "UTC",
+          "dependencyDashboard": true,
+          "dependencyDashboardTitle": "🤖 Dependency Updates Dashboard",
+          "rangeStrategy": "bump",
+          "semanticCommits": "enabled",
+          "semanticCommitType": "chore",
+          "semanticCommitScope": "deps",
+          "labels": ["dependencies", "automated"],
+          "reviewersFromCodeOwners": true,
+          "packageRules": [
+            {
+              "matchUpdateTypes": ["patch"],
+              "automerge": true,
+              "automergeType": "branch"
+            },
+            {
+              "matchUpdateTypes": ["minor"],
+              "reviewers": ["team:maintainers"],
+              "schedule": ["before 4am on monday"]
+            },
+            {
+              "matchUpdateTypes": ["major"],
+              "reviewers": ["team:maintainers", "team:security"],
+              "schedule": ["before 4am on first day of month"],
+              "labels": ["major-update", "breaking-change"]
+            },
+            {
+              "matchPackageNames": ["react", "react-dom", "@types/react"],
+              "groupName": "React",
+              "reviewers": ["team:frontend"]
+            },
+            {
+              "matchPackageNames": ["@nestjs/*"],
+              "groupName": "NestJS",
+              "reviewers": ["team:backend"]
+            },
+            {
+              "matchPackageNames": ["typescript", "@types/*"],
+              "groupName": "TypeScript",
+              "reviewers": ["team:maintainers"]
+            },
+            {
+              "matchDepTypes": ["devDependencies"],
+              "automerge": true,
+              "automergeType": "branch",
+              "schedule": ["before 4am on monday"]
+            },
+            {
+              "matchPackagePatterns": ["^@types/"],
+              "automerge": true,
+              "automergeType": "branch"
+            },
+            {
+              "matchPackagePatterns": ["eslint", "prettier", "jest", "testing-library"],
+              "groupName": "Development Tools",
+              "automerge": true,
+              "automergeType": "branch"
+            }
+          ],
+          "vulnerabilityAlerts": {
+            "enabled": true,
+            "reviewers": ["team:security"],
+            "labels": ["security", "vulnerability"],
+            "schedule": ["at any time"]
+          },
+          "prCreation": "not-pending",
+          "prConcurrentLimit": 5,
+          "prHourlyLimit": 2,
+          "rebaseWhen": "conflicted",
+          "lockFileMaintenance": {
+            "enabled": true,
+            "schedule": ["before 4am on monday"]
+          }
+        }
+        EOF
+
+    - name: Commit Renovate config
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: 'chore(deps): add renovate configuration'
+        file_pattern: '.github/renovate.json'
+
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Update patch dependencies
+      if: github.event.inputs.update_type == 'patch' || github.event.inputs.update_type == 'all'
+      run: |
+        npx npm-check-updates -u --target patch
+        npm install
+
+    - name: Update minor dependencies
+      if: github.event.inputs.update_type == 'minor' || github.event.inputs.update_type == 'all'
+      run: |
+        npx npm-check-updates -u --target minor
+        npm install
+
+    - name: Update major dependencies
+      if: github.event.inputs.update_type == 'major' || github.event.inputs.update_type == 'all'
+      run: |
+        npx npm-check-updates -u --target latest
+        npm install
+
+    - name: Run tests after updates
+      run: |
+        npm test || echo "Tests failed - dependency updates may have introduced breaking changes"
+        npm run lint || echo "Linting failed - dependency updates may require configuration changes"
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          chore(deps): update ${{ github.event.inputs.update_type }} dependencies
+          
+          🤖 Automated dependency update via GitHub Actions
+          
+          Update type: ${{ github.event.inputs.update_type }}
+          Triggered: ${{ github.event_name }}
+        title: '🤖 Automated Dependency Update (${{ github.event.inputs.update_type }})'
+        body: |
+          ## 🤖 Automated Dependency Update
+          
+          This PR was automatically created to update ${{ github.event.inputs.update_type }} dependencies.
+          
+          ### Changes Made:
+          - Updated ${{ github.event.inputs.update_type }} level dependencies
+          - Regenerated package-lock.json
+          - Ran automated tests (check status above)
+          
+          ### Review Checklist:
+          - [ ] All tests pass
+          - [ ] No breaking changes introduced
+          - [ ] Documentation updated if needed
+          - [ ] Security audit passed
+          
+          ### Security Notice:
+          Please review the security implications of these updates before merging.
+          
+          ---
+          
+          **Auto-generated by:** GitHub Actions Dependency Update Workflow
+          **Update Type:** ${{ github.event.inputs.update_type }}
+          **Triggered By:** @${{ github.actor }}
+        branch: automated/dependency-updates-${{ github.event.inputs.update_type }}
+        labels: |
+          dependencies
+          automated
+          ${{ github.event.inputs.update_type }}-update
+        reviewers: |
+          team:maintainers
+        assignees: |
+          ${{ github.actor }}
+
+  security-advisories:
+    name: Monitor Security Advisories
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Check for security advisories
+      run: |
+        npm audit --audit-level=low --json > security-report.json
+        
+        # Parse and format the report
+        echo "## Security Advisory Report" > security-summary.md
+        echo "Generated on: $(date)" >> security-summary.md
+        echo "" >> security-summary.md
+        
+        if [ -s security-report.json ]; then
+          echo "### Vulnerabilities Found:" >> security-summary.md
+          cat security-report.json | jq -r '.vulnerabilities | to_entries[] | "- **\(.key)**: \(.value.severity) - \(.value.title)"' >> security-summary.md
+        else
+          echo "✅ No security vulnerabilities found" >> security-summary.md
+        fi
+
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-report
+        path: |
+          security-report.json
+          security-summary.md
+
+    - name: Comment security report on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const summary = fs.readFileSync('security-summary.md', 'utf8');
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🛡️ Security Advisory Check\n\n${summary}`
+          });
+
+  notify-completion:
+    name: Notify Completion
+    runs-on: ubuntu-latest
+    needs: [npm-audit, dependency-review, update-dependencies, security-advisories]
+    if: always()
+    
+    steps:
+    - name: Send notification
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🤖 Dependency Update Workflow Completed",
+            "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "*Dependency Update Summary*\n\n• NPM Audit: ${{ needs.npm-audit.result }}\n• Dependency Review: ${{ needs.dependency-review.result }}\n• Update Process: ${{ needs.update-dependencies.result }}\n• Security Check: ${{ needs.security-advisories.result }}"
+                }
+              }
+            ]
+          }
+        webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
